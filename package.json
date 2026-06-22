@@ -1,0 +1,18 @@
+{
+  "name": "caserelay-terminal3",
+  "version": "1.0.0",
+  "description": "Permission-gated sensitive case escalation agent powered by Terminal 3",
+  "main": "src/server.mjs",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "check": "node --check src/server.mjs && node --check src/case-agent.mjs && node --check src/terminal3-service.mjs && node --check public/app.js && node --check scripts/smoke-test.mjs",
+    "test": "node scripts/smoke-test.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@terminal3/t3n-sdk": "^3.9.0"
+  }
+}

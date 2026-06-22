@@ -1,0 +1,750 @@
+--- a/public/index.html
++++ b/public/index.html
+@@ -25,7 +25,7 @@
+       <span class="status-dot" id="systemDot"></span>
+       <span id="systemStatus">Checking services…</span>
+       <span class="divider" aria-hidden="true"></span>
+-      <span class="live-pill">Integration verified · LIVE</span>
++      <span class="live-pill" id="livePill">Safe preview · no live key</span>
+     </div>
+   </header>
+ 
+@@ -42,8 +42,8 @@
+ 
+       <div class="proof-card">
+         <div class="proof-card-head">
+-          <span>Verified integration</span>
+-          <span class="proof-badge">LIVE</span>
++          <span id="proofCardLabel">Terminal 3 integration</span>
++          <span class="proof-badge hidden" id="proofBadge">LIVE</span>
+         </div>
+         <dl>
+           <div><dt>Authentication</dt><dd>Ethereum-signed</dd></div>
+@@ -157,16 +157,51 @@
+       </article>
+     </section>
+ 
+-    <section class="evidence-grid">
+-      <article class="panel lifecycle-panel">
+-        <div class="panel-heading compact">
+-          <div>
+-            <p class="section-kicker">Protected lifecycle</p>
+-            <h2>Terminal 3 actions</h2>
+-          </div>
+-          <span class="evidence-label">Evidence: LIVE</span>
++    <section class="panel chain-panel">
++      <div class="panel-heading compact">
++        <div>
++          <p class="section-kicker">Verified execution chain</p>
++          <h2>How this action became real</h2>
+         </div>
++        <span class="evidence-label" id="lifecycleEvidence">Evidence: LIVE</span>
++      </div>
+ 
++      <div class="chain">
++        <div class="chain-stage" data-stage="approval">
++          <p class="chain-stage-label">01</p>
++          <h3>Human approval</h3>
++          <p class="chain-stage-detail">Explicit approval recorded for this action.</p>
++          <p class="chain-stage-state" id="chainApprovalState">Pending</p>
++        </div>
++        <div class="chain-rail" aria-hidden="true"></div>
++        <div class="chain-stage" data-stage="auth">
++          <p class="chain-stage-label">02</p>
++          <h3>Agent Dev Kit auth</h3>
++          <p class="chain-stage-detail">Ethereum-signed Terminal 3 session.</p>
++          <p class="chain-stage-state" id="chainAuthState">Pending</p>
++        </div>
++        <div class="chain-rail" aria-hidden="true"></div>
++        <div class="chain-stage" data-stage="mutation">
++          <p class="chain-stage-label">03</p>
++          <h3>Tenant mutation</h3>
++          <p class="chain-stage-detail" id="chainSdkCall">Awaiting action</p>
++          <div class="map-state-row">
++            <span class="map-state-label">Map state</span>
++            <span class="map-state-value" id="mapStateValue">Does not exist</span>
++          </div>
++          <p class="chain-stage-state" id="chainMutationState">Pending</p>
++        </div>
++        <div class="chain-rail" aria-hidden="true"></div>
++        <div class="chain-stage" data-stage="receipt">
++          <p class="chain-stage-label">04</p>
++          <h3>LIVE receipt</h3>
++          <p class="chain-stage-detail" id="chainDuration">Awaiting result</p>
++          <p class="chain-stage-state" id="chainReceiptState">Pending</p>
++        </div>
++      </div>
++
++      <details class="lifecycle-fallback">
++        <summary>View as three-step lifecycle</summary>
+         <div class="lifecycle">
+           <div class="lifecycle-step" data-step="OPEN_CASE">
+             <span class="step-index">1</span>
+@@ -186,32 +221,50 @@
+             <span class="step-state">Pending</span>
+           </div>
+         </div>
+-      </article>
++      </details>
++    </section>
+ 
+-      <article class="panel receipt-panel">
+-        <div class="panel-heading compact">
+-          <div>
+-            <p class="section-kicker">Execution receipt</p>
+-            <h2>Judge-visible proof</h2>
+-          </div>
+-          <span class="receipt-status" id="receiptStatus">No action</span>
++    <section class="panel receipt-panel-wide">
++      <div class="panel-heading compact">
++        <div>
++          <p class="section-kicker">Execution receipt</p>
++          <h2>Judge-visible proof</h2>
+         </div>
++        <span class="receipt-status" id="receiptStatus">No action</span>
++      </div>
+ 
+-        <div class="receipt-empty" id="receiptEmpty">
+-          A sanitized receipt appears here after a protected Terminal 3 action.
+-        </div>
++      <div class="receipt-empty" id="receiptEmpty">
++        A sanitized receipt appears here after a protected Terminal 3 action.
++      </div>
+ 
+-        <dl class="receipt-grid hidden" id="receiptGrid">
+-          <div><dt>Action</dt><dd id="receiptAction">—</dd></div>
+-          <div><dt>Evidence</dt><dd id="receiptEvidence">—</dd></div>
+-          <div><dt>Environment</dt><dd id="receiptEnvironment">—</dd></div>
+-          <div><dt>Protected map</dt><dd id="receiptMap">—</dd></div>
+-          <div><dt>Tenant</dt><dd id="receiptTenant">—</dd></div>
+-          <div><dt>Executed</dt><dd id="receiptTime">—</dd></div>
+-        </dl>
+-      </article>
++      <dl class="receipt-grid hidden" id="receiptGrid">
++        <div><dt>Action</dt><dd id="receiptAction">—</dd></div>
++        <div><dt>Evidence</dt><dd id="receiptEvidence">—</dd></div>
++        <div><dt>Environment</dt><dd id="receiptEnvironment">—</dd></div>
++        <div><dt>Protected map</dt><dd id="receiptMap">—</dd></div>
++        <div><dt>Tenant</dt><dd id="receiptTenant">—</dd></div>
++        <div><dt>Executed</dt><dd id="receiptTime">—</dd></div>
++      </dl>
++
++      <p class="action-trace hidden" id="actionTrace">
++        <span id="actionTraceText">—</span>
++      </p>
++
++      <details class="tech-disclosure hidden" id="techDisclosure">
++        <summary>How this was executed</summary>
++        <ul>
++          <li>Ethereum-signed Terminal 3 Agent Dev Kit session</li>
++          <li>Active tenant resolved before mutation</li>
++          <li id="techDisclosureSdkCall">SDK operation: —</li>
++          <li>Terminal 3 testnet</li>
++          <li>Private key remained server-side</li>
++          <li id="techDisclosureTenant">Tenant: —</li>
++          <li>No raw customer PII sent</li>
++        </ul>
++      </details>
+     </section>
+ 
++
+     <section class="panel timeline-panel">
+       <div class="panel-heading compact">
+         <div>
+
+--- a/public/styles.css
++++ b/public/styles.css
+@@ -1219,3 +1219,280 @@
+ .dialog-summary strong {
+   margin-left: auto;
+ }
++
++/* ===================================================================
++   APPROVED MERGED UI DIRECTION (90/100) — appended, not a rewrite.
++   65% B (High-Trust Evidence-Led / Minimal Luxury) — dominant system:
++     spacing, soft shadow-led panels, generous whitespace, seal motif.
++   20% C (Command-Center but Elegant) — ONE bold moment only:
++     the dark topbar. No other dark surface anywhere else on the page.
++   15% A (Institutional / Compliance-Grade) — vocabulary layer only:
++     "§" section markers and "Ref." chain-stage tags. No competing
++     border/radius language introduced from A.
++   Underlying UX (Verified Execution Chain + map-state consequence,
++   receipt, timeline, approval model) is unchanged structurally —
++   this section is styling only.
++   =================================================================== */
++
++/* ---- B: foundation (spacing, surfaces, premium feel) ---- */
++body { background: #f6f3ec; }
++
++.panel {
++  border: none;
++  box-shadow: 0 2px 0 rgba(23, 27, 24, 0.04), 0 20px 50px rgba(33, 43, 36, 0.06);
++  border-radius: 26px;
++}
++
++.hero { margin: 38px 0 56px; gap: 56px; }
++.hero h1 { font-weight: 400; letter-spacing: -0.07em; }
++
++.proof-card {
++  border-radius: 24px;
++  padding: 26px;
++  box-shadow: 0 16px 40px rgba(33, 43, 36, 0.06);
++}
++
++.intake-panel, .decision-panel { padding: 36px; }
++.chain-panel { margin-top: 20px; padding: 40px; }
++.chain {
++  display: grid;
++  grid-template-columns: 1fr 24px 1fr 24px 1fr 24px 1fr;
++  align-items: stretch;
++  margin-top: 30px;
++  gap: 0 22px;
++}
++
++.chain-stage {
++  border: none;
++  border-radius: 20px;
++  padding: 24px 20px 20px;
++  background: #fffef9;
++  box-shadow: 0 1px 0 rgba(23, 27, 24, 0.03), 0 14px 30px rgba(33, 43, 36, 0.05);
++  transition: box-shadow 200ms ease, background 200ms ease;
++}
++.chain-stage.is-complete {
++  background: linear-gradient(180deg, #fffef9 0%, var(--green-soft) 140%);
++}
++.chain-stage h3 {
++  margin: 0 0 6px;
++  font-family: Georgia, "Times New Roman", serif;
++  font-size: 19px;
++  font-weight: 500;
++}
++.chain-stage-label {
++  margin: 0 0 10px;
++  color: var(--muted);
++  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
++  font-size: 11px;
++  letter-spacing: 0.12em;
++  opacity: 0.7;
++}
++.chain-stage-label::before { content: "Ref. "; opacity: 0.7; }
++.chain-stage-detail {
++  margin: 0 0 14px;
++  min-height: 32px;
++  color: var(--muted);
++  font-size: 12px;
++  line-height: 1.5;
++}
++.chain-stage[data-stage="mutation"] .chain-stage-detail,
++.chain-stage[data-stage="receipt"] .chain-stage-detail {
++  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
++  font-size: 11.5px;
++  color: var(--ink);
++  overflow-wrap: anywhere;
++}
++.chain-stage-state {
++  margin: 0;
++  padding-top: 12px;
++  border-top: 1px solid rgba(23, 27, 24, 0.06);
++  color: var(--muted);
++  font-size: 10.5px;
++  font-weight: 800;
++  letter-spacing: 0.1em;
++  text-transform: uppercase;
++}
++
++/* B's seal motif — recurring signature element on every COMPLETE stage. */
++.chain-stage.is-complete .chain-stage-state {
++  display: inline-flex;
++  align-items: center;
++  gap: 6px;
++  border-top-color: rgba(33, 76, 60, 0.14);
++  color: var(--green);
++}
++.chain-stage.is-complete .chain-stage-state::before {
++  content: "";
++  width: 14px;
++  height: 14px;
++  border-radius: 999px;
++  border: 1.5px solid var(--green);
++  background: radial-gradient(circle, var(--green) 0 3px, transparent 3.5px);
++}
++
++.chain-stage.is-active {
++  background: rgba(229, 238, 232, 0.5);
++}
++.chain-stage.is-active .chain-stage-state {
++  display: inline-flex;
++  align-items: center;
++  gap: 6px;
++  border-top: none;
++  padding-top: 0;
++  color: var(--green);
++}
++.chain-stage.is-active .chain-stage-state::before {
++  content: "";
++  width: 6px;
++  height: 6px;
++  border-radius: 999px;
++  background: var(--green);
++  animation: chain-pulse 1.1s ease-in-out infinite;
++}
++@keyframes chain-pulse {
++  0%, 100% { opacity: 0.3; }
++  50% { opacity: 1; }
++}
++
++.chain-rail {
++  position: relative;
++  align-self: center;
++  height: 1px;
++  background: rgba(23, 27, 24, 0.08);
++}
++.chain-rail.is-traversed { background: rgba(33, 76, 60, 0.3); }
++
++.map-state-row {
++  display: flex;
++  align-items: center;
++  justify-content: space-between;
++  border: none;
++  background: rgba(255, 255, 255, 0.7);
++  border-radius: 12px;
++  padding: 10px 14px;
++  margin-bottom: 12px;
++}
++.map-state-label {
++  color: var(--muted);
++  font-size: 10px;
++  font-weight: 800;
++  letter-spacing: 0.07em;
++  text-transform: uppercase;
++}
++.map-state-value {
++  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
++  font-size: 11.5px;
++  font-weight: 700;
++  color: var(--muted);
++}
++.map-state-value.exists { color: var(--green); }
++.map-state-value.deleted { color: var(--red); }
++
++.lifecycle-fallback {
++  margin-top: 18px;
++  padding-top: 16px;
++  border-top: 1px dashed rgba(23, 27, 24, 0.12);
++}
++.lifecycle-fallback summary {
++  color: var(--muted);
++  font-size: 12px;
++  font-weight: 700;
++  cursor: pointer;
++  list-style: none;
++}
++.lifecycle-fallback summary::-webkit-details-marker { display: none; }
++.lifecycle-fallback summary::before { content: "\2192 "; }
++.lifecycle-fallback .lifecycle { margin-top: 14px; }
++
++.receipt-panel-wide { margin-top: 20px; padding: 36px; }
++.receipt-grid {
++  border: none;
++  border-radius: 18px;
++  overflow: hidden;
++  box-shadow: inset 0 0 0 1px rgba(23, 27, 24, 0.06);
++}
++.receipt-grid > div { border-color: rgba(23, 27, 24, 0.06); }
++
++.action-trace {
++  margin: 10px 0 0;
++  border: none;
++  border-radius: 14px;
++  background: rgba(255, 255, 255, 0.6);
++  padding: 14px 16px;
++  color: var(--muted);
++  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
++  font-size: 11.5px;
++  line-height: 1.5;
++  overflow-wrap: anywhere;
++}
++.action-trace strong { color: var(--ink); font-weight: 700; }
++
++.tech-disclosure {
++  margin: 12px 0 0;
++  padding: 0 16px;
++  border: none;
++  border-radius: 14px;
++  background: rgba(255, 255, 255, 0.5);
++  font-size: 12.5px;
++}
++.tech-disclosure summary {
++  padding: 11px 0;
++  color: var(--green);
++  font-weight: 700;
++  font-size: 12px;
++  cursor: pointer;
++  list-style: none;
++}
++.tech-disclosure summary::-webkit-details-marker { display: none; }
++.tech-disclosure summary::before { content: "+ "; font-weight: 800; }
++.tech-disclosure[open] summary::before { content: "\2212 "; }
++.tech-disclosure ul {
++  margin: 0;
++  padding: 0 0 14px 18px;
++  color: var(--muted);
++  line-height: 1.7;
++}
++.tech-disclosure li { margin-bottom: 4px; }
++.tech-disclosure li:last-child { margin-bottom: 0; }
++
++.primary-button { border-radius: 999px; padding: 13px 22px; }
++.secondary-button { border-radius: 999px; }
++
++.timeline-panel { padding: 36px; }
++
++/* ---- C: ONE bold moment only — the topbar. ---- */
++.topbar {
++  background: var(--ink);
++  border-bottom: none;
++  border-radius: 18px;
++  margin-bottom: 10px;
++}
++.topbar .brand strong, .topbar .brand small { color: #f4f1e9; }
++.topbar .brand-mark { background: var(--green-soft); color: var(--green); border-radius: 10px; }
++.system-strip {
++  background: rgba(255, 255, 255, 0.06);
++  border-color: rgba(255, 255, 255, 0.12);
++  border-radius: 14px;
++}
++.system-strip span { color: rgba(244, 241, 233, 0.65); }
++.system-strip strong { color: #f4f1e9; }
++.live-pill {
++  background: rgba(229, 238, 232, 0.18);
++  border-color: rgba(229, 238, 232, 0.3);
++  color: #d7ecdf;
++  border-radius: 999px;
++  padding: 9px 14px;
++  font-weight: 700;
++}
++.status-dot.ready { box-shadow: 0 0 0 4px rgba(33, 76, 60, 0.3); }
++
++/* ---- A: vocabulary layer only — section labels read as documentary. ---- */
++.eyebrow::before, .section-kicker::before { content: "\00A7 "; opacity: 0.7; }
++.eyebrow, .section-kicker { letter-spacing: 0.2em; }
++
++.receipt-status { border-radius: 999px; padding: 9px 14px; font-weight: 700; }
++
++@media (max-width: 980px) {
++  .chain { grid-template-columns: 1fr; gap: 10px; }
++  .chain-rail { display: none; }
++}
+
+--- a/public/app.js
++++ b/public/app.js
+@@ -39,22 +39,25 @@
+   confirmActionButton: $("confirmActionButton"),
+   systemDot: $("systemDot"),
+   systemStatus: $("systemStatus"),
++  livePill: $("livePill"),
++  proofBadge: $("proofBadge"),
++  proofCardLabel: $("proofCardLabel"),
+   toast: $("toast"),
+ };
+ 
+ const ACTION_COPY = {
+   OPEN_CASE: {
+-    label: "Open protected case",
++    label: "Approve & open case",
+     title: "Approve protected case creation?",
+     copy: "CaseRelay will create a private Terminal 3 tenant map for this anonymized case.",
+   },
+   ESCALATE: {
+-    label: "Escalate access",
++    label: "Approve escalation",
+     title: "Approve access escalation?",
+     copy: "CaseRelay will update the Terminal 3 map access configuration for this case.",
+   },
+   CLOSE_CASE: {
+-    label: "Close and revoke",
++    label: "Approve close & revoke",
+     title: "Approve case closure?",
+     copy: "CaseRelay will delete the Terminal 3 map and revoke the protected workspace.",
+   },
+@@ -186,20 +189,22 @@
+   }
+ }
+ 
++const GATE_TITLE = {
++  NEW: "Protected action requires approval",
++  OPEN: "Protected workspace opened",
++  ESCALATED: "Protected access escalated",
++  CLOSED: "Protected workspace revoked",
++};
++
+ function renderGate(record) {
+   const action = nextProtectedAction(record);
+   const copy = action ? ACTION_COPY[action] : null;
+ 
+-  if (record.status === "CLOSED") {
+-    ui.gateTitle.textContent = "Protected workspace revoked";
+-    ui.gateCopy.textContent = "The Terminal 3 map was deleted and the case lifecycle is complete.";
+-  } else if (copy) {
+-    ui.gateTitle.textContent = copy.label;
+-    ui.gateCopy.textContent = copy.copy;
+-  } else {
+-    ui.gateTitle.textContent = "Decision held";
+-    ui.gateCopy.textContent = "No protected mutation will run until a new action is explicitly approved.";
+-  }
++  ui.gateTitle.textContent = GATE_TITLE[record.status] ?? "Decision held";
++  ui.gateCopy.textContent =
++    record.status === "CLOSED"
++      ? "The Terminal 3 map was deleted and the case lifecycle is complete."
++      : copy?.copy ?? "No protected mutation will run until a new action is explicitly approved.";
+ 
+   ui.holdButton.classList.toggle("hidden", record.status !== "NEW");
+   ui.protectedActionButton.classList.toggle("hidden", !action);
+@@ -235,8 +240,131 @@
+   });
+ }
+ 
++const CHAIN_STAGES = ["approval", "auth", "mutation", "receipt"];
++
++function setChainStage(stage, label, cssClass) {
++  const el = document.querySelector(`.chain-stage[data-stage="${stage}"]`);
++  if (!el) return;
++  el.classList.remove("is-active", "is-complete");
++  if (cssClass) el.classList.add(cssClass);
++  const stateEl = el.querySelector(".chain-stage-state");
++  if (stateEl) stateEl.textContent = label;
++}
++
++const MAP_STATE_BY_ACTION = {
++  OPEN_CASE: { creating: "Creating…", done: "Created", cls: "exists" },
++  ESCALATE: { creating: "Updating…", done: "Access updated", cls: "exists" },
++  CLOSE_CASE: { creating: "Deleting…", done: "Deleted", cls: "deleted" },
++};
++
++function renderChain(record) {
++  const action = nextProtectedAction(record);
++  const receipt = record.receipt;
++  const rails = document.querySelectorAll(".chain-rail");
++  const mapStateEl = $("mapStateValue");
++  const sdkCallEl = $("chainSdkCall");
++  const durationEl = $("chainDuration");
++
++  if (record.status === "NEW" && !record.latestDecision) {
++    // No action taken yet — every stage genuinely pending.
++    for (const stage of CHAIN_STAGES) setChainStage(stage, "Pending", null);
++    rails.forEach((r) => r.classList.remove("is-traversed"));
++    if (sdkCallEl) sdkCallEl.textContent = "Awaiting action";
++    if (durationEl) durationEl.textContent = "Awaiting result";
++    if (mapStateEl) {
++      mapStateEl.textContent = "Does not exist";
++      mapStateEl.classList.remove("exists", "deleted");
++    }
++    return;
++  }
++
++  if (receipt) {
++    // A mutation has genuinely completed — every stage truthfully complete.
++    setChainStage("approval", "Complete", "is-complete");
++    setChainStage("auth", "Complete", "is-complete");
++    setChainStage("mutation", "Complete", "is-complete");
++    setChainStage("receipt", "Complete", "is-complete");
++    rails.forEach((r) => r.classList.add("is-traversed"));
++
++    const sdkCallByAction = {
++      OPEN_CASE: "tenant.maps.create()",
++      ESCALATE: "tenant.maps.update()",
++      CLOSE_CASE: "tenant.maps.delete()",
++    };
++    if (sdkCallEl) sdkCallEl.textContent = sdkCallByAction[receipt.action] ?? "—";
++    if (durationEl) durationEl.textContent = `${receipt.evidence} · result returned`;
++
++    const mapInfo = MAP_STATE_BY_ACTION[receipt.action];
++    if (mapStateEl && mapInfo) {
++      mapStateEl.textContent = mapInfo.done;
++      mapStateEl.classList.remove("exists", "deleted");
++      mapStateEl.classList.add(mapInfo.cls);
++    }
++  } else if (action) {
++    // Approval recorded, mutation in flight — stage 3 genuinely
++    // executing, stage 4 genuinely still pending. No fake receipt.
++    setChainStage("approval", "Complete", "is-complete");
++    setChainStage("auth", "Complete", "is-complete");
++    setChainStage("mutation", "Executing", "is-active");
++    setChainStage("receipt", "Pending", null);
++    rails[0]?.classList.add("is-traversed");
++    rails[1]?.classList.add("is-traversed");
++    rails[2]?.classList.remove("is-traversed");
++
++    const sdkCallByAction = {
++      OPEN_CASE: "tenant.maps.create()",
++      ESCALATE: "tenant.maps.update()",
++      CLOSE_CASE: "tenant.maps.delete()",
++    };
++    if (sdkCallEl) sdkCallEl.textContent = sdkCallByAction[action] ?? "—";
++    if (durationEl) durationEl.textContent = "Awaiting result";
++
++    const mapInfo = MAP_STATE_BY_ACTION[action];
++    if (mapStateEl && mapInfo) {
++      mapStateEl.textContent = mapInfo.creating;
++      mapStateEl.classList.remove("exists", "deleted");
++    }
++  }
++}
++
++function renderActionTrace(record) {
++  const trace = $("actionTrace");
++  const traceText = $("actionTraceText");
++  const disclosure = $("techDisclosure");
++  if (!trace || !traceText) return;
++
++  const receipt = record.receipt;
++  if (!receipt) {
++    trace.classList.add("hidden");
++    disclosure?.classList.add("hidden");
++    return;
++  }
++
++  const sdkCallByAction = {
++    OPEN_CASE: "tenant.maps.create()",
++    ESCALATE: "tenant.maps.update()",
++    CLOSE_CASE: "tenant.maps.delete()",
++  };
++  const sdkCall = sdkCallByAction[receipt.action] ?? "—";
++
++  trace.classList.remove("hidden");
++  traceText.innerHTML =
++    `Human approved <strong>&rarr;</strong> POST /action <strong>&rarr;</strong> ` +
++    `${sdkCall} <strong>&rarr;</strong> ${receipt.evidence} · ${formatTime(receipt.executedAt)}`;
++
++  if (disclosure) {
++    disclosure.classList.remove("hidden");
++    disclosure.removeAttribute("open");
++    const sdkCallLine = $("techDisclosureSdkCall");
++    const tenantLine = $("techDisclosureTenant");
++    if (sdkCallLine) sdkCallLine.textContent = `SDK operation: ${sdkCall}`;
++    if (tenantLine) tenantLine.textContent = `Tenant: ${receipt.tenantDidMasked ?? "—"}`;
++  }
++}
++
+ function renderCase(record) {
+   renderLifecycle(record.status);
++  renderChain(record);
+   currentCase = record;
+   ui.emptyState.classList.add("hidden");
+   ui.decisionContent.classList.remove("hidden");
+@@ -250,6 +378,7 @@
+   renderSignals(record.analysis.signals);
+   renderGate(record);
+   renderReceipt(record.receipt);
++  renderActionTrace(record);
+   renderTimeline(record.timeline);
+ }
+ 
+@@ -275,17 +404,40 @@
+   return payload;
+ }
+ 
++const SESSION_PILL_COPY = {
++  SAFE_PREVIEW_NO_LIVE_KEY: "Safe preview · no live key",
++  TERMINAL3_READY_TESTNET: "Terminal 3 ready · testnet",
++  LIVE_VERIFIED_THIS_SESSION: "Live · verified this session",
++};
++
+ async function checkHealth() {
+   try {
+     const payload = await request("/api/health");
+-    const configured = payload.terminal3KeyConfigured === true;
+-    ui.systemDot.dataset.status = configured ? "ready" : "warning";
+-    ui.systemStatus.textContent = configured
+-      ? "Live session ready"
+-      : "Key not loaded · safe preview";
++    const state = payload.sessionState;
++
++    ui.systemDot.dataset.status =
++      state === "SAFE_PREVIEW_NO_LIVE_KEY" ? "warning" : "ready";
++    ui.systemStatus.textContent =
++      state === "SAFE_PREVIEW_NO_LIVE_KEY"
++        ? "Key not loaded · safe preview"
++        : "Live session ready";
++
++    ui.livePill.textContent = SESSION_PILL_COPY[state] ?? "Safe preview · no live key";
++
++    // Hero capability card: never shows a session-level LIVE badge
++    // before a real successful mutation. Label stays "Terminal 3
++    // integration" until sessionHasLiveReceipt flips true.
++    const hasLiveReceipt = payload.sessionHasLiveReceipt === true;
++    ui.proofBadge.classList.toggle("hidden", !hasLiveReceipt);
++    ui.proofCardLabel.textContent = hasLiveReceipt
++      ? "Verified integration"
++      : "Terminal 3 integration";
+   } catch {
+     ui.systemDot.dataset.status = "error";
+     ui.systemStatus.textContent = "Service unavailable";
++    ui.livePill.textContent = "Safe preview · no live key";
++    ui.proofBadge.classList.add("hidden");
++    ui.proofCardLabel.textContent = "Terminal 3 integration";
+   }
+ }
+ 
+@@ -328,6 +480,7 @@
+       body: JSON.stringify({ action, approved }),
+     });
+     renderCase(payload.case);
++    if (action !== "HOLD") await checkHealth();
+     showToast(
+       action === "HOLD" ? "Decision held. No mutation executed." : `${action.replaceAll("_", " ")} completed LIVE.`,
+       "success"
+
+--- a/src/server.mjs
++++ b/src/server.mjs
+@@ -15,6 +15,11 @@
+ const PORT = Number(process.env.PORT || 8080);
+ const cases = new Map();
+ 
++// Tracks whether at least one real Terminal 3 mutation has succeeded
++// in this server process's lifetime, so /api/health never claims LIVE
++// session verification before any mutation has actually happened.
++let sessionHasLiveReceipt = false;
++
+ const STATIC_FILES = new Map([
+   ["/", {
+     file: new URL("../public/index.html", import.meta.url),
+@@ -179,6 +184,7 @@
+       event(record, "HELD", "No Terminal 3 mutation executed.");
+     } else {
+       event(record, action, `${receipt.action} completed with LIVE evidence.`);
++      if (receipt?.evidence === "LIVE") sessionHasLiveReceipt = true;
+     }
+ 
+     send(res, 200, { ok: true, case: view(record) });
+@@ -203,17 +209,22 @@
+   }
+ 
+   if (req.method === "GET" && pathname === "/api/health") {
++    const keyConfigured = Boolean(process.env.T3N_DEMO_KEY);
++    // Three truthful, mutually exclusive states — never LIVE-verified
++    // before a real mutation has actually succeeded this session.
++    const sessionState = !keyConfigured
++      ? "SAFE_PREVIEW_NO_LIVE_KEY"
++      : sessionHasLiveReceipt
++        ? "LIVE_VERIFIED_THIS_SESSION"
++        : "TERMINAL3_READY_TESTNET";
++
+     return send(res, 200, {
+       ok: true,
+       service: "CaseRelay",
+       status: "READY",
+-      terminal3KeyConfigured: Boolean(process.env.T3N_DEMO_KEY),
+-      evidence: {
+-        authentication: "LIVE",
+-        mapCreate: "LIVE",
+-        mapUpdate: "LIVE",
+-        mapDelete: "LIVE",
+-      },
++      terminal3KeyConfigured: keyConfigured,
++      sessionHasLiveReceipt,
++      sessionState,
+     });
+   }
+ 
+

@@ -1,0 +1,9 @@
+
+> caserelay-terminal3@1.0.0 test
+> node scripts/smoke-test.mjs
+
+SMOKE_PASS
+STATIC_ASSETS_PASS
+ANALYZE_PASS
+APPROVAL_GATE_PASS
+HOLD_NO_MUTATION_PASS

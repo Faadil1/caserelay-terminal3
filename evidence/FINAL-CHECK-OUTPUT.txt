@@ -1,0 +1,4 @@
+
+> caserelay-terminal3@1.0.0 check
+> node --check src/server.mjs && node --check src/case-agent.mjs && node --check src/terminal3-service.mjs && node --check public/app.js && node --check scripts/smoke-test.mjs
+
